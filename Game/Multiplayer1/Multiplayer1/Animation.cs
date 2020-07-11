@@ -22,7 +22,11 @@ namespace Multiplayer1
             FrameTime = frameDelay;
             TotalFrames = totalFrames;
             Texture = texture;
-            FrameSize = new Vector2(Texture.Width / TotalFrames, Texture.Height);
+
+            if (TotalFrames > 1)
+                FrameSize = new Vector2(Texture.Width / TotalFrames, Texture.Height);
+            else
+                FrameSize = new Vector2(Texture.Width, Texture.Height);
         }
 
         public void Update(GameTime gameTime)
@@ -55,7 +59,7 @@ namespace Multiplayer1
 
         public void Draw(SpriteBatch spriteBatch, Vector2 pos)
         {
-            spriteBatch.Draw(Texture, new Rectangle((int)pos.X, (int)pos.Y, (int)FrameSize.X, (int)FrameSize.Y) , SourceRectangle, Color.White);
+            spriteBatch.Draw(Texture, new Rectangle((int)pos.X, (int)pos.Y, (int)FrameSize.X, (int)FrameSize.Y) , SourceRectangle, Color.White, 0, new Vector2(FrameSize.X/2, FrameSize.Y), SpriteEffects.None, 0);
         }
     }
 }

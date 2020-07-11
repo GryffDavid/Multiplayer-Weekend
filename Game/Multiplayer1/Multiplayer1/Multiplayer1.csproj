@@ -72,10 +72,15 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AmmoPack.cs" />
     <Compile Include="Animation.cs" />
+    <Compile Include="Background.cs" />
     <Compile Include="CollisionTile.cs" />
+    <Compile Include="Corpse.cs" />
+    <Compile Include="Decal.cs" />
     <Compile Include="Explosion.cs" />
     <Compile Include="Grenade.cs" />
+    <Compile Include="HealthPack.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="ParticleSystem\Particle.cs" />
     <Compile Include="ParticleSystem\Emitter.cs" />

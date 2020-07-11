@@ -32,6 +32,7 @@ namespace Multiplayer1
             if (Active == true)
             {
                 Position += Velocity;
+                Rotation = (float)Math.Atan2(Velocity.Y, Velocity.X);
                 DestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, RocketTexture.Width, RocketTexture.Height);
             }
         }
@@ -45,10 +46,7 @@ namespace Multiplayer1
         {
             if (Active == true)
             {
-                if (Velocity.X < 0)
-                    spriteBatch.Draw(RocketTexture, DestinationRectangle, Color.White);
-                else
-                    spriteBatch.Draw(RocketTexture, DestinationRectangle, null, Color.White, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
+                    spriteBatch.Draw(RocketTexture, DestinationRectangle, null, Color.White, Rotation, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
             }
         }
     }

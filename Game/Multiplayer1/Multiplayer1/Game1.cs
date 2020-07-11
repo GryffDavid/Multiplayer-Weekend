@@ -13,9 +13,15 @@ using System.Xml;
 using System.Xml.Serialization;
 namespace Multiplayer1
 {
-    public enum GameType { Local, Network };
+    public enum MultiPlayerType { Local, Network };
     public enum PlayerControls { GamePad, KeyboardMouse };
     public enum GameState { MainMenu, Connecting, Game, Paused, EndScreen };
+
+    //DeathMatch = 10 minute time limit with victor being most kills by the end
+    //First to 20 is the first person to get 20 kills
+    //Could also make a mode consisting of rounds like TowerFall
+    //Capture the flag
+    public enum GameType { DeathMatch, FirstTo20 };
 
     public delegate void PlayerShootHappenedEventHandler(object source, PlayerShootEventArgs e);
     public class PlayerShootEventArgs : EventArgs
@@ -45,8 +51,7 @@ namespace Multiplayer1
                 OnExplosionHappened(source, new ExplosionEventArgs() { Explosion = explosion });
         }
         #endregion
-
-
+        
         static Random Random = new Random();
         GameState CurrentGameState;
         GraphicsDeviceManager graphics;
@@ -168,6 +173,8 @@ namespace Multiplayer1
                         }
 
                         EmitterList.RemoveAll(Emitter => Emitter.AddMore == false && Emitter.ParticleList.Count == 0);
+                        EmitterList2.RemoveAll(Emitter => Emitter.AddMore == false && Emitter.ParticleList.Count == 0);
+
 
                         foreach (Player player in Players.Where(Player => Player != null))
                         {
@@ -244,6 +251,7 @@ namespace Multiplayer1
             foreach (Player player in Players.Where(Player => Player != null))
             {
                 spriteBatch.DrawString(Font, player.PlayerIndex.ToString() + ": " + player.Score.ToString(), new Vector2(32, 32 + (int)player.PlayerIndex * 32), Color.White);
+                spriteBatch.DrawString(Font, MathHelper.ToDegrees(player.AimAngle).ToString(), player.Position, Color.White);
             }
 
             foreach (Grenade grenade in GrenadeList)
@@ -370,6 +378,7 @@ namespace Multiplayer1
                 if (dist < explosion.BlastRadius)
                 {
                     player.CurrentHP = 0;
+                    
                 }
             }
 
@@ -377,7 +386,13 @@ namespace Multiplayer1
 
         public void PlayRandomSound(params SoundEffect[] soundEffect)
         {
-            soundEffect[Random.Next(0, soundEffect.Length)].Play(0.5f, 0, 0);
+            soundEffect[Random.Next(0, soundEffect.Length)].Play(0.5f, (float)RandomDouble(-0.25, 0.25), 0);
         }
+
+        public double RandomDouble(double a, double b)
+        {
+            return a + Random.NextDouble() * (b - a);
+        }
+
     }
 }

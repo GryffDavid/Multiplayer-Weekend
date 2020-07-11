@@ -92,14 +92,14 @@ Content\Player4\Standing\StandRightDown.xnb
 Content\Player4\Standing\StandRightUp.xnb
 Content\Player4\WallSlideLeft.xnb
 Content\Player4\WallSlideRight.xnb
+Content\GrenadeTexture.xnb
+Content\ParticleTextures\ExplosionParticle2.xnb
 Content\SpriteFont.xnb
 Content\SoundEffects\GunShot1.xnb
 Content\SoundEffects\Player\Jump1.xnb
 Content\SoundEffects\Player\JumpLand1.xnb
 Content\SoundEffects\GunCollision1.xnb
 Content\SoundEffects\GunShot2.xnb
-Content\GrenadeTexture.xnb
-Content\ParticleTextures\ExplosionParticle2.xnb
 Content\SoundEffects\Grenade\GrenadeExplosion1.xnb
 Content\SoundEffects\Grenade\GrenadeExplosion2.xnb
 Content\SoundEffects\Grenade\GrenadeExplosion3.xnb
@@ -107,3 +107,4 @@ Content\SoundEffects\Throw\Throw1.xnb
 Content\SoundEffects\Throw\Throw2.xnb
 Content\SoundEffects\Throw\Throw3.xnb
 Content\SoundEffects\Throw\Throw4.xnb
+Content\ParticleTextures\DustTexture.xnb
