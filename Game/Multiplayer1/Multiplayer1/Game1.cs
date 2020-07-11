@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -8,7 +9,8 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-
+using System.Xml;
+using System.Xml.Serialization;
 namespace Multiplayer1
 {
     public enum GameType { Local, Network };
@@ -21,8 +23,11 @@ namespace Multiplayer1
         public Player Player { get; set; }
     }
 
+    public enum CollisionType { Solid, OneWay };
+
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        GameState CurrentGameState;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Texture2D RocketTexture;
@@ -60,12 +65,14 @@ namespace Multiplayer1
         protected override void Initialize()
         {
             //PlayerShootEvent += OnPlayerShoot;
+            CurrentGameState = GameState.Game;
             base.Initialize();
         }
                 
         protected override void LoadContent()
         {
-            Level1 = new Level("Level1");
+            Level1 = new Level();
+            Level1 = Load();
             Level1.LoadContent(Content);
 
             GunShot1 = Content.Load<SoundEffect>("SoundEffects/GunShot1");
@@ -95,44 +102,57 @@ namespace Multiplayer1
         
         protected override void Update(GameTime gameTime)
         {
-            foreach (Emitter emitter in EmitterList)
+            switch (CurrentGameState)
             {
-                emitter.Update(gameTime);
-            }
+                case GameState.Game:
+                    {
+                        foreach (Emitter emitter in EmitterList)
+                        {
+                            emitter.Update(gameTime);
+                        }
 
-            EmitterList.RemoveAll(Emitter => Emitter.AddMore == false && Emitter.ParticleList.Count == 0);
+                        EmitterList.RemoveAll(Emitter => Emitter.AddMore == false && Emitter.ParticleList.Count == 0);
 
-            foreach (Player player in Players.Where(Player => Player != null))
-            {
-                player.Update(gameTime);
-            }
+                        foreach (Player player in Players.Where(Player => Player != null))
+                        {
+                            player.Update(gameTime);
+                        }
+                        
+                        foreach (Rocket rocket in RocketList)
+                        {
+                            rocket.Update(gameTime);
 
-            foreach (Rocket rocket in RocketList)
-            {
-                rocket.Update(gameTime);
+                            if (Level1.CollisionTileList.Any(Tile => Tile.BoundingBox.Intersects(rocket.DestinationRectangle)))
+                            {
+                                GunCollision1.Play(0.25f, 0, 0);
+                                rocket.Active = false;
 
-                if (Level1.CollisionTileList.Any(TileList => TileList.Any(Tile => Tile.BoundingBox.Intersects(rocket.DestinationRectangle))))
-                {
-                    GunCollision1.Play(0.25f, 0, 0);
-                    rocket.Active = false;
+                                Emitter sparkEmitter = new Emitter(SparkTexture, rocket.Position, new Vector2(0, 360), new Vector2(2, 3), new Vector2(250, 450), 1f, true, new Vector2(0, 0), new Vector2(0, 0), Vector2.One, Color.Orange, Color.OrangeRed, 0.2f, 0.1f, 1, 2, false, new Vector2(0, 720), false, 0f, false, false, null, null, null, true);
+                                EmitterList.Add(sparkEmitter);
+                            }
 
-                    Emitter sparkEmitter = new Emitter(SparkTexture, rocket.Position, new Vector2(0, 360), new Vector2(2, 3), new Vector2(250, 450), 1f, true, new Vector2(0, 0), new Vector2(0, 0), Vector2.One, Color.Orange, Color.OrangeRed, 0.2f, 0.1f, 1, 2, false, new Vector2(0, 720), false, 0f, false, false, null, null, null, true);
-                    EmitterList.Add(sparkEmitter);
-                }
+                            if (Players.Any(Player =>
+                                Player != null &&
+                                rocket.SourcePlayer != Player &&
+                                rocket.Active == true &&
+                                Player.DestinationRectangle.Intersects(rocket.DestinationRectangle)))
+                            {
+                                rocket.Active = false;
+                                Players.First(Player => Player.DestinationRectangle.Intersects(rocket.DestinationRectangle) && Player != rocket.SourcePlayer).CurrentHP = 0;
+                                rocket.SourcePlayer.Score++;
+                            }
+                        }
 
-                if (Players.Any(Player =>  
-                    Player != null && 
-                    rocket.SourcePlayer != Player && 
-                    rocket.Active == true &&
-                    Player.DestinationRectangle.Intersects(rocket.DestinationRectangle)))
-                {
-                    rocket.Active = false;
-                    Players.First(Player => Player.DestinationRectangle.Intersects(rocket.DestinationRectangle)).CurrentHP = 0;
-                    rocket.SourcePlayer.Score++;
-                }
-            }
+                        RocketList.RemoveAll(Rocket => Rocket.Active == false);
+                    }
+                    break;
 
-            RocketList.RemoveAll(Rocket => Rocket.Active == false);
+                case GameState.Paused:
+                    {
+
+                    }
+                    break;
+            }            
 
             base.Update(gameTime);
         }
@@ -142,17 +162,20 @@ namespace Multiplayer1
             GraphicsDevice.Clear(Color.DarkGray);
 
             spriteBatch.Begin();
-            Level1.Draw(spriteBatch);           
-            
+            //Level1.Draw(spriteBatch);           
+            Level1.DrawTiles(spriteBatch);
+
+            Level1.DrawBackgroundTiles(spriteBatch);
+
             foreach (Player player in Players.Where(Player => Player != null))
             {
                 player.Draw(spriteBatch);
             }
 
-            foreach (Rocket rocket in RocketList)
-            {
-                rocket.Draw(spriteBatch);
-            }
+            Level1.DrawForegroundTiles(spriteBatch);
+
+            
+
 
             foreach (Player player in Players.Where(Player => Player != null))
             {
@@ -167,7 +190,14 @@ namespace Multiplayer1
             {
                 emitter.Draw(spriteBatch);
             }
-            Level1.Draw(spriteBatch);
+
+            foreach (Rocket rocket in RocketList)
+            {
+                rocket.Draw(spriteBatch);
+            }
+            
+            //Level1.DrawTiles(spriteBatch);
+            //Level1.DrawBackgroundTiles(spriteBatch);
             spriteBatch.End();
            
             base.Draw(gameTime);
@@ -190,6 +220,22 @@ namespace Multiplayer1
             }
 
             CheckedPlayers = true;            
+        }
+
+        private Level Load()
+        {
+            XmlSerializer SerializerObj = new XmlSerializer(typeof(Level));
+
+            // Create a new file stream for reading the XML file
+            FileStream ReadFileStream = new FileStream("C:\\LevelData\\" + "NewLevelTest" + ".txt", FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            // Load the object saved above by using the Deserialize function
+            Level LoadedObj = (Level)SerializerObj.Deserialize(ReadFileStream);
+
+            // Cleanup
+            ReadFileStream.Close();
+
+            return LoadedObj;
         }
     }
 }

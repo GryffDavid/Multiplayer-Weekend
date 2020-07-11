@@ -48,13 +48,21 @@ namespace Multiplayer1
         public GunState CurrentGunState;
         public Animation CurrentAnimation;
 
-        public Animation RunRightAnimation, RunLeftAnimation, 
-                         StandRight, StandLeft,
-                         JumpRight, JumpLeft;
+        public Animation RunRightAnimation, RunRightUpAnimation, RunRightDownAnimation,
+                         RunLeftAnimation, RunLeftUpAnimation, RunLeftDownAnimation,
+                         StandRightAnimation, StandRightUpAnimation, StandRightDownAnimation,
+                         StandLeftAnimation, StandLeftUpAnimation, StandLeftDownAnimation,
+                         JumpRightAnimation, JumpRightUpAnimation, JumpRightDownAnimation,
+                         JumpLeftAnimation, JumpLeftUpAnimation, JumpLeftDownAnimation,
+                         CrouchRightAnimation, CrouchLeftAnimation;
 
-        public Texture2D RunRightTexture, RunLeftTexture,
-                         StandRightTexture, StandLeftTexture,
-                         JumpRightTexture, JumpLeftTexture;
+        public Texture2D RunRightTexture, RunRightUpTexture, RunRightDownTexture,
+                         RunLeftTexture, RunLeftUpTexture, RunLeftDownTexture,
+                         StandRightTexture, StandRightUpTexture, StandRightDownTexture,
+                         StandLeftTexture, StandLeftUpTexture, StandLeftDownTexture,
+                         JumpRightTexture, JumpRightUpTexture, JumpRightDownTexture,
+                         JumpLeftTexture, JumpLeftUpTexture, JumpLeftDownTexture,
+                         CrouchRightTexture, CrouchLeftTexture;
 
         public SoundEffect JumpLand1, Jump1;
 
@@ -84,7 +92,7 @@ namespace Multiplayer1
         public void Update(GameTime gameTime)
         {
             CurrentGamePadState = GamePad.GetState(PlayerIndex);
-            CollisionRectangle = DestinationRectangle;
+            CollisionRectangle = new Rectangle((int)Position.X, (int)Position.Y, 39, 49);
             
             Sticks = CurrentGamePadState.ThumbSticks;
             MoveStick = Sticks.Left;
@@ -241,19 +249,19 @@ namespace Multiplayer1
             if (Velocity.X == 0)
             {
                 if (AimDirection.X > 0)
-                    CurrentAnimation = StandRight;
+                    CurrentAnimation = StandRightAnimation;
 
                 if (AimDirection.X < 0)
-                    CurrentAnimation = StandLeft;
+                    CurrentAnimation = StandLeftAnimation;
             }
 
             if (Velocity.Y != 0)
             {
                 if (AimDirection.X > 0)
-                    CurrentAnimation = JumpRight;
+                    CurrentAnimation = JumpRightAnimation;
 
                 if (AimDirection.X < 0)
-                    CurrentAnimation = JumpLeft;                
+                    CurrentAnimation = JumpLeftAnimation;                
             }
                 
             if (CurrentHP == 0)
@@ -283,23 +291,36 @@ namespace Multiplayer1
             PlayerTexture = content.Load<Texture2D>("PlayerTexture");
             GunTexture = content.Load<Texture2D>("GunTexture");
 
-            RunRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex+1) + "/RunRight");
-            RunLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/RunLeft");
+            RunRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex+1) + "/Running/RunRight");
+            RunRightUpTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Running/RunRightUp");
+            RunRightDownTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Running/RunRightDown");
 
-            StandRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/StandRight");
-            StandLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/StandLeft");
+            RunLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Running/RunLeft");
+            RunLeftUpTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Running/RunLeftUp");
+            RunLeftDownTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Running/RunLeftDown");
 
-            JumpRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/JumpRight");
-            JumpLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/JumpLeft");
+            StandRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Standing/StandRight");
+            StandRightUpTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Standing/StandRightUp");
+            StandRightDownTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Standing/StandRightDown");
+
+            StandLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Standing/StandLeft");
+            StandLeftUpTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Standing/StandLeftUp");
+            StandLeftDownTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Standing/StandLeftDown");
+            
+            JumpRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpRight");
+            JumpRightUpTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpRight");
+            JumpRightDownTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpRight");
+
+            JumpLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpLeft");
 
             RunRightAnimation = new Animation(RunRightTexture, 8, 80);
             RunLeftAnimation = new Animation(RunLeftTexture, 8, 80);
 
-            StandLeft = new Animation(StandLeftTexture, 1, 80);
-            StandRight = new Animation(StandRightTexture, 1, 80);
+            StandLeftAnimation = new Animation(StandLeftTexture, 1, 80);
+            StandRightAnimation = new Animation(StandRightTexture, 1, 80);
 
-            JumpLeft = new Animation(JumpLeftTexture, 1, 80);
-            JumpRight = new Animation(JumpRightTexture, 1, 80);
+            JumpLeftAnimation = new Animation(JumpLeftTexture, 1, 80);
+            JumpRightAnimation = new Animation(JumpRightTexture, 1, 80);
 
             CurrentAnimation = RunRightAnimation;
         }
@@ -315,11 +336,11 @@ namespace Multiplayer1
 
         public bool CheckRightCollisions()
         {
-            foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
+            //foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
             {
-                foreach (Tile tile in subList)
+                foreach (CollisionTile tile in CurrentLevel.CollisionTileList)
                 {
-                    for (int i = 0; i < 32; i++)
+                    for (int i = 0; i < CollisionRectangle.Height; i++)
                     {
                         if (tile.BoundingBox.Contains(new Point((int)(CollisionRectangle.Right + Velocity.X), (int)(CollisionRectangle.Top + i))) == true)
                         {
@@ -336,11 +357,11 @@ namespace Multiplayer1
 
         public bool CheckLeftCollisions()
         {
-            foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
+            //foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
             {
-                foreach (Tile tile in subList)
+                foreach (CollisionTile tile in CurrentLevel.CollisionTileList)
                 {
-                    for (int i = 0; i < 32; i++)
+                    for (int i = 0; i < CollisionRectangle.Height; i++)
                     {
                         if (tile.BoundingBox.Contains(new Point((int)(CollisionRectangle.Left + Velocity.X - 1), (int)(CollisionRectangle.Top + i))) == true)
                         {
@@ -357,11 +378,11 @@ namespace Multiplayer1
 
         public bool CheckUpCollisions()
         {
-            foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
+            //foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
             {
-                foreach (Tile tile in subList)
+                foreach (CollisionTile tile in CurrentLevel.CollisionTileList)
                 {
-                    for (int i = 0; i < 32; i++)
+                    for (int i = 0; i < CollisionRectangle.Width; i++)
                     {
                         if (Velocity.Y < 0)
                             if (tile.BoundingBox.Contains(new Point((int)(CollisionRectangle.Left + i), (int)(CollisionRectangle.Top + Velocity.Y - 1))) == true)
@@ -379,11 +400,11 @@ namespace Multiplayer1
 
         public bool CheckDownCollisions()
         {
-            foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
+            //foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
             {
-                foreach (Tile tile in subList)
+                foreach (CollisionTile tile in CurrentLevel.CollisionTileList)
                 {
-                    for (int i = 0; i < 32; i++)
+                    for (int i = 0; i < CollisionRectangle.Width; i++)
                     {
                         if (tile.BoundingBox.Contains(new Point((int)(CollisionRectangle.Left + i), 
                                                                 (int)(CollisionRectangle.Bottom + Velocity.Y + 1))) == true)

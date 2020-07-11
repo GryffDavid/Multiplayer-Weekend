@@ -10,26 +10,30 @@ namespace Multiplayer1
 {
     public class Tile
     {
-        Vector2 Position, Size;
-        Texture2D TileTexture;
-        public Rectangle BoundingBox;
-        public BoundingBox MyBox;
+        public Vector2 Position, Size, TileChar;
+        public Texture2D TileTexture;
+        public Rectangle BoundingBox, DestinationRectangle, SourceRectangle;
 
-        public Tile(Vector2 position, Vector2 size)
+        public Tile()
         {
-            Position = position;
-            Size = size;
-            BoundingBox = new Rectangle((int)Position.X, (int)Position.Y, (int)Size.X, (int)Size.Y);
+            //Vector2 position, Vector2 size, Vector2 tileChar
+            //TileChar = tileChar;
+            //Position = position;
+            //Size = size;
+            //BoundingBox = new Rectangle((int)Position.X, (int)Position.Y, (int)Size.X, (int)Size.Y);
         }
 
         public void LoadContent(ContentManager contentManager)
         {
-            TileTexture = contentManager.Load<Texture2D>("BasicTile");
+            TileTexture = contentManager.Load<Texture2D>("Tiles/TilesCollection");
+
+            SourceRectangle = new Rectangle((int)TileChar.X * 16, (int)TileChar.Y * 16, 16, 16);
+            DestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, (int)Size.X, (int)Size.Y);
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(TileTexture, new Rectangle((int)Position.X, (int)Position.Y, (int)Size.X, (int)Size.Y), Color.White);
+            spriteBatch.Draw(TileTexture, DestinationRectangle, SourceRectangle, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0f);
         }
     }
 }

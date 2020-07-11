@@ -11,61 +11,138 @@ namespace Multiplayer1
 {
     public class Level
     {
-        public List<List<Tile>> CollisionTileList = new List<List<Tile>>();
-        public List<string> LinesList = new List<string>();
+        public List<List<Tile>> MainTileList = new List<List<Tile>>();
+        public List<List<Tile>> ForegroundTileList = new List<List<Tile>>();
+        public List<List<Tile>> BackgroundTileList = new List<List<Tile>>();
+        public List<CollisionTile> CollisionTileList = new List<CollisionTile>();
 
-        public Level(string levelName)
+        public Level()
         {
-            using (StreamReader r = new StreamReader("C:\\LevelData\\" + levelName + ".txt"))
+
+        }
+
+        public void Initialize()
+        {
+            for (int y = 0; y < 24; y++)
             {
-                string Line;
+                List<Tile> SubList = new List<Tile>();
 
-                while ((Line = r.ReadLine()) != null)
+                for (int x = 0; x < 40; x++)
                 {
-                    LinesList.Add(Line);
+                    SubList.Add(new Tile());
                 }
 
-                for (int y = 0; y < LinesList.Count; y++)
+                MainTileList.Add(SubList);
+            }
+
+            for (int y = 0; y < 24; y++)
+            {
+                List<Tile> SubList = new List<Tile>();
+
+                for (int x = 0; x < 40; x++)
                 {
-                    List<Tile> SubList = new List<Tile>();
-
-                    for (int x = 0; x < LinesList[y].Length; x++)
-                    {
-                        if (LinesList[y][x] != '0')
-                        {
-                            SubList.Add(new Tile(new Vector2(x * 32, y * 32), new Vector2(32, 32)));
-                        }
-                    }
-
-                    CollisionTileList.Add(SubList);
+                    SubList.Add(new Tile());
                 }
+
+                ForegroundTileList.Add(SubList);
+            }
+
+            for (int y = 0; y < 24; y++)
+            {
+                List<Tile> SubList = new List<Tile>();
+
+                for (int x = 0; x < 40; x++)
+                {
+                    SubList.Add(new Tile());
+                }
+
+                BackgroundTileList.Add(SubList);
             }
         }
 
         public void LoadContent(ContentManager contentManager)
         {
-            #region Load Collision Tiles
-            for (int y = 0; y < CollisionTileList.Count; y++)
+            #region Load  main tiles content
+            for (int y = 0; y < MainTileList.Count; y++)
             {
-                for (int x = 0; x < CollisionTileList[y].Count; x++)
+                for (int x = 0; x < MainTileList[y].Count; x++)
                 {
-                    CollisionTileList[y][x].LoadContent(contentManager);
+                    MainTileList[y][x].Position = new Vector2(x * 16, y * 16);
+                    MainTileList[y][x].Size = new Vector2(16, 16);
+                    MainTileList[y][x].LoadContent(contentManager);
                 }
             }
             #endregion
+
+            #region Load foreground content
+            for (int y = 0; y < ForegroundTileList.Count; y++)
+            {
+                for (int x = 0; x < ForegroundTileList[y].Count; x++)
+                {
+                    ForegroundTileList[y][x].Position = new Vector2(x * 16, y * 16);
+                    ForegroundTileList[y][x].Size = new Vector2(16, 16);
+                    ForegroundTileList[y][x].LoadContent(contentManager);
+                }
+            }
+            #endregion
+
+            #region Load background content
+            for (int y = 0; y < ForegroundTileList.Count; y++)
+            {
+                for (int x = 0; x < ForegroundTileList[y].Count; x++)
+                {
+                    BackgroundTileList[y][x].Position = new Vector2(x * 16, y * 16);
+                    BackgroundTileList[y][x].Size = new Vector2(16, 16);
+                    BackgroundTileList[y][x].LoadContent(contentManager);
+                }
+            }
+            #endregion
+
+            foreach (CollisionTile tile in CollisionTileList)
+            {
+                tile.LoadContent(contentManager);
+            }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void DrawTiles(SpriteBatch spriteBatch)
         {
-            #region Draw Collision Tiles
-            for (int y = 0; y < CollisionTileList.Count; y++)
+            for (int y = 0; y < MainTileList.Count; y++)
             {
-                for (int x = 0; x < CollisionTileList[y].Count; x++)
+                for (int x = 0; x < MainTileList[y].Count; x++)
                 {
-                    CollisionTileList[y][x].Draw(spriteBatch);
+                    MainTileList[y][x].Draw(spriteBatch);
                 }
             }
-            #endregion
+        }
+
+        public void DrawForegroundTiles(SpriteBatch spriteBatch)
+        {
+            for (int y = 0; y < ForegroundTileList.Count; y++)
+            {
+                for (int x = 0; x < ForegroundTileList[y].Count; x++)
+                {
+                    ForegroundTileList[y][x].Draw(spriteBatch);
+                }
+            }
+        }
+
+        public void DrawBackgroundTiles(SpriteBatch spriteBatch)
+        {
+            for (int y = 0; y < BackgroundTileList.Count; y++)
+            {
+                for (int x = 0; x < BackgroundTileList[y].Count; x++)
+                {
+                    BackgroundTileList[y][x].Draw(spriteBatch);
+                }
+            }
+        }
+
+        public void DrawCollisions(SpriteBatch spriteBatch)
+        {
+            foreach (CollisionTile tile in CollisionTileList)
+            {
+                tile.Draw(spriteBatch);
+            }
         }
     }
 }

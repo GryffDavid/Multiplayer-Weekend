@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animation.cs" />
+    <Compile Include="CollisionTile.cs" />
     <Compile Include="Grenade.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="ParticleSystem\Particle.cs" />
