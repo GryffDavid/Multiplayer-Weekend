@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework;
+
+namespace Multiplayer1
+{
+    public class Explosion
+    {
+        public Vector2 Position;
+        public int BlastRadius;
+        public int Damage;
+    }
+}

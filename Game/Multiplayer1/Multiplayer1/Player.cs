@@ -14,6 +14,7 @@ namespace Multiplayer1
 
     public class Player
     {
+        static Random Random = new Random();
         public event PlayerShootHappenedEventHandler PlayerShootHappened;
         public void CreatePlayerShoot()
         {
@@ -23,6 +24,17 @@ namespace Multiplayer1
         {
             if (PlayerShootHappened != null)
                 PlayerShootHappened(this, new PlayerShootEventArgs() { Player = this });
+        }
+
+        public event PlayerGrenadeHappenedEventHandler PlayerGrenadeHappened;
+        public void CreatePlayerGrenade()
+        {
+            OnPlayerGrenadeHappened();
+        }
+        protected virtual void OnPlayerGrenadeHappened()
+        {
+            if (PlayerGrenadeHappened != null)
+                PlayerGrenadeHappened(this, new PlayerGrenadeEventArgs() { Player = this });
         }
 
         Texture2D PlayerTexture, GunTexture;
@@ -39,6 +51,7 @@ namespace Multiplayer1
         public GamePadState CurrentGamePadState, PreviousGamePadState;
         public KeyboardState CurrentKeyboardState, PreviousKeyboardState;
         public MouseState CurrentMouseState, PreviousMouseState;
+
 
         GamePadThumbSticks Sticks;
         Vector2 MoveStick, AimStick;
@@ -64,14 +77,16 @@ namespace Multiplayer1
                          JumpLeftTexture, JumpLeftUpTexture, JumpLeftDownTexture,
                          CrouchRightTexture, CrouchLeftTexture;
 
-        public SoundEffect JumpLand1, Jump1;
+        public SoundEffect JumpLand1, Jump1,
+                           Throw1, Throw2, Throw3, Throw4;
 
-        public DynamicSoundEffectInstance DynamicSound;
-
-        public void Initialize(PlayerShootHappenedEventHandler thing)
+        public void Initialize(PlayerShootHappenedEventHandler thing, PlayerGrenadeHappenedEventHandler thing2)
         {
             if (PlayerShootHappened == null)
                 PlayerShootHappened += thing;
+
+            if (PlayerGrenadeHappened == null)
+                PlayerGrenadeHappened += thing2;
 
             MaxShootDelay = 250;
             CurrentShootDelay = 0;
@@ -147,7 +162,21 @@ namespace Multiplayer1
                 {
                     if (InAir == true)
                     {
+                        //if (Math.Abs(Velocity.Y) <= 2)
+                        //{
+                        //    Velocity.Y -= 14f;
+                        //}
+                        //else
+                        //{
+                        //    Velocity.Y -= 12f;
+                        //}
+
+                        Velocity.Y -= 12f;
                         DoubleJumped = true;
+                    }
+                    else
+                    {
+                        Velocity.Y -= 12f;
                     }
 
                     if (InAir == false)
@@ -155,7 +184,6 @@ namespace Multiplayer1
                         Jump1.Play(1.0f, 0f, 0f);
                     }
 
-                    Velocity.Y -= 12f;
                 } 
                 #endregion
 
@@ -173,15 +201,12 @@ namespace Multiplayer1
                 if (CurrentGamePadState.Buttons.B == ButtonState.Pressed &&
                     PreviousGamePadState.Buttons.B == ButtonState.Released)
                 {
-
+                    PlayRandomSound(Throw1, Throw2, Throw3, Throw4);
+                    CurrentShootDelay = 0;
+                    CreatePlayerGrenade();
+                    //CreatePlayerShoot();
                 }
                 #endregion
-                #endregion
-            }
-            else
-            {
-                #region Keyboard + Mouse
-
                 #endregion
             }
 
@@ -286,7 +311,11 @@ namespace Multiplayer1
             JumpLand1 = content.Load<SoundEffect>("SoundEffects/Player/JumpLand1");
             Jump1 = content.Load<SoundEffect>("SoundEffects/Player/Jump1");
 
-            DynamicSound = new DynamicSoundEffectInstance(48000, AudioChannels.Stereo);
+            Throw1 = content.Load<SoundEffect>("SoundEffects/Throw/Throw1");
+            Throw2 = content.Load<SoundEffect>("SoundEffects/Throw/Throw2");
+            Throw3 = content.Load<SoundEffect>("SoundEffects/Throw/Throw3");
+            Throw4 = content.Load<SoundEffect>("SoundEffects/Throw/Throw4");
+
 
             PlayerTexture = content.Load<Texture2D>("PlayerTexture");
             GunTexture = content.Load<Texture2D>("GunTexture");
@@ -308,21 +337,41 @@ namespace Multiplayer1
             StandLeftDownTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Standing/StandLeftDown");
             
             JumpRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpRight");
-            JumpRightUpTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpRight");
-            JumpRightDownTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpRight");
+            JumpRightUpTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpRightUp");
+            JumpRightDownTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpRightDown");
 
             JumpLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpLeft");
+            JumpLeftUpTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpLeftUp");
+            JumpLeftDownTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/Jumping/JumpLeftDown");
 
-            RunRightAnimation = new Animation(RunRightTexture, 8, 80);
-            RunLeftAnimation = new Animation(RunLeftTexture, 8, 80);
+            CrouchRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/CrouchRight");
+            CrouchLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/CrouchLeft");
 
-            StandLeftAnimation = new Animation(StandLeftTexture, 1, 80);
-            StandRightAnimation = new Animation(StandRightTexture, 1, 80);
+            RunRightAnimation = new Animation(RunRightTexture, 8, 50);
+            RunRightUpAnimation = new Animation(RunRightUpTexture, 8, 50);
+            RunRightDownAnimation = new Animation(RunRightDownTexture, 8, 50);
 
-            JumpLeftAnimation = new Animation(JumpLeftTexture, 1, 80);
-            JumpRightAnimation = new Animation(JumpRightTexture, 1, 80);
+            RunLeftAnimation = new Animation(RunLeftTexture, 8, 50);
+            RunLeftUpAnimation = new Animation(RunLeftUpTexture, 8, 50);
+            RunLeftDownAnimation = new Animation(RunLeftDownTexture, 8, 50);
 
-            CurrentAnimation = RunRightAnimation;
+            StandLeftAnimation = new Animation(StandLeftTexture, 1, 50);
+            StandLeftUpAnimation = new Animation(StandLeftUpTexture, 1, 50);
+            StandLeftDownAnimation = new Animation(StandLeftDownTexture, 1, 50);            
+
+            StandRightAnimation = new Animation(StandRightTexture, 1, 50);
+            StandRightUpAnimation = new Animation(StandRightUpTexture, 1, 50);
+            StandRightDownAnimation = new Animation(StandRightDownTexture, 1, 50);            
+
+            JumpLeftAnimation = new Animation(JumpLeftTexture, 1, 50);
+            JumpLeftUpAnimation = new Animation(JumpLeftUpTexture, 1, 50);
+            JumpLeftDownAnimation = new Animation(JumpLeftDownTexture, 1, 50);            
+
+            JumpRightAnimation = new Animation(JumpRightTexture, 1, 50);
+            JumpRightUpAnimation = new Animation(JumpRightUpTexture, 1, 50);
+            JumpRightDownAnimation = new Animation(JumpRightDownTexture, 1, 50);
+
+            CurrentAnimation = StandRightAnimation;
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -418,6 +467,11 @@ namespace Multiplayer1
             }
 
             return false;
+        }
+
+        public void PlayRandomSound(params SoundEffect[] soundEffect)
+        {
+            soundEffect[Random.Next(0, soundEffect.Length)].Play(0.5f, 0, 0);
         }
     }
 }
