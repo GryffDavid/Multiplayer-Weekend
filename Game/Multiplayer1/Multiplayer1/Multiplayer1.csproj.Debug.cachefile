@@ -2,3 +2,11 @@ Content\PlayerTexture.xnb
 Content\GunTexture.xnb
 Content\BasicTile.xnb
 Content\SpriteFont.xnb
+Content\Player1\RunLeft.xnb
+Content\Player1\RunRight.xnb
+Content\Player1\WallSlideLeft.xnb
+Content\Player1\WallSlideRight.xnb
+Content\Player1\StandLeft.xnb
+Content\Player1\StandRight.xnb
+Content\Player1\JumpLeft.xnb
+Content\Player1\JumpRight.xnb

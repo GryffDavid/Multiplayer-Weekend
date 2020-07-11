@@ -27,7 +27,7 @@ namespace Multiplayer1
         Texture2D PlayerTexture, GunTexture;
 
         public int CurrentHP, Score;
-        public float Gravity, AimAngle;
+        public float Gravity, AimAngle, CurrentShootDelay, MaxShootDelay;
         public PlayerIndex PlayerIndex;
         public bool UseGamePad = true;
         public bool InAir = true;
@@ -45,11 +45,23 @@ namespace Multiplayer1
         public Level CurrentLevel;
 
         public GunState CurrentGunState;
+        public Animation CurrentAnimation;
+
+        public Animation RunRightAnimation, RunLeftAnimation, 
+                         StandRight, StandLeft,
+                         JumpRight, JumpLeft;
+
+        public Texture2D RunRightTexture, RunLeftTexture,
+                         StandRightTexture, StandLeftTexture,
+                         JumpRightTexture, JumpLeftTexture;
 
         public void Initialize(PlayerShootHappenedEventHandler thing)
         {
             if (PlayerShootHappened == null)
                 PlayerShootHappened += thing;
+
+            MaxShootDelay = 500;
+            CurrentShootDelay = 500;
 
             Score = 0;
             CurrentHP = 1;
@@ -59,7 +71,7 @@ namespace Multiplayer1
         {
             PlayerIndex = myIndex;
             Position = new Vector2(500, 500);
-            MaxSpeed = new Vector2(6, 6);
+            MaxSpeed = new Vector2(4, 6);
             Friction = new Vector2(0.75f, 0.75f);
             Gravity = 0.6f;
         }
@@ -76,15 +88,33 @@ namespace Multiplayer1
             CurrentKeyboardState = Keyboard.GetState();
             CurrentMouseState = Mouse.GetState();
 
+            if (CurrentShootDelay < MaxShootDelay)
+            {
+                CurrentShootDelay += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            }
+
+            if (CurrentAnimation != null)
+                CurrentAnimation.Update(gameTime);
+
             if (UseGamePad == true)
             {
                 #region Controller
-                if (MoveStick.X < -0.1f)
-                    AimDirection.X = -1f;
+                if (MoveStick.X < 0f)
+                {
+                    if (CurrentAnimation != RunLeftAnimation)
+                        CurrentAnimation = RunLeftAnimation;
 
-                if (MoveStick.X > 0.1f)
+                    AimDirection.X = -1f;
+                }
+
+                if (MoveStick.X > 0f)
+                {
+                    if (CurrentAnimation != RunRightAnimation)
+                        CurrentAnimation = RunRightAnimation;
+
                     AimDirection.X = 1f;
-                
+                }
+
                 AimAngle = (float)Math.Atan2(AimDirection.Y, AimDirection.X);
 
                 Velocity.X += MoveStick.X * 3f;
@@ -112,8 +142,10 @@ namespace Multiplayer1
 
                 #region Shooting
                 if (CurrentGamePadState.Buttons.X == ButtonState.Pressed &&
-                    PreviousGamePadState.Buttons.X == ButtonState.Released)
+                    PreviousGamePadState.Buttons.X == ButtonState.Released &&
+                    CurrentShootDelay >= MaxShootDelay)
                 {
+                    CurrentShootDelay = 0;
                     CreatePlayerShoot();
                 }
                 #endregion
@@ -191,13 +223,36 @@ namespace Multiplayer1
                 Velocity.Y += Gravity;
             #endregion
 
+
+            if (Velocity.X == 0)
+            {
+                if (AimDirection.X > 0)
+                    CurrentAnimation = StandRight;
+
+                if (AimDirection.X < 0)
+                    CurrentAnimation = StandLeft;
+            }
+
+            if (Velocity.Y != 0)
+            {
+                if (AimDirection.X > 0)
+                    CurrentAnimation = JumpRight;
+
+                if (AimDirection.X < 0)
+                    CurrentAnimation = JumpLeft;
+            }
+                
+
             if (CurrentHP == 0)
             {
                 Position = new Vector2(32, 32);
                 CurrentHP = 1;
             }
 
-            DestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, PlayerTexture.Width, PlayerTexture.Height);
+            //if (CurrentAnimation != null)
+            DestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, (int)CurrentAnimation.FrameSize.X, (int)CurrentAnimation.FrameSize.Y);
+            //DestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, 50, 50);
+
             GunDestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, GunTexture.Width, GunTexture.Height);
 
             PreviousGamePadState = CurrentGamePadState;
@@ -209,12 +264,35 @@ namespace Multiplayer1
         {
             PlayerTexture = contentManager.Load<Texture2D>("PlayerTexture");
             GunTexture = contentManager.Load<Texture2D>("GunTexture");
+
+            RunRightTexture = contentManager.Load<Texture2D>("Player1/RunRight");
+            RunLeftTexture = contentManager.Load<Texture2D>("Player1/RunLeft");
+
+            StandRightTexture = contentManager.Load<Texture2D>("Player1/StandRight");
+            StandLeftTexture = contentManager.Load<Texture2D>("Player1/StandLeft");
+
+            JumpRightTexture = contentManager.Load<Texture2D>("Player1/JumpRight");
+            JumpLeftTexture = contentManager.Load<Texture2D>("Player1/JumpLeft");
+
+            RunRightAnimation = new Animation(RunRightTexture, 8, 80);
+            RunLeftAnimation = new Animation(RunLeftTexture, 8, 80);
+
+            StandLeft = new Animation(StandLeftTexture, 1, 80);
+            StandRight = new Animation(StandRightTexture, 1, 80);
+
+            JumpLeft = new Animation(JumpLeftTexture, 1, 80);
+            JumpRight = new Animation(JumpRightTexture, 1, 80);
+
+            CurrentAnimation = RunRightAnimation;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(PlayerTexture, DestinationRectangle, Color.Red);
-            spriteBatch.Draw(GunTexture, GunDestinationRectangle, null, Color.White, AimAngle, new Vector2(0, GunTexture.Height / 2), SpriteEffects.None, 0);
+            //spriteBatch.Draw(PlayerTexture, DestinationRectangle, Color.Red);
+            if (CurrentAnimation != null)
+                CurrentAnimation.Draw(spriteBatch, Position);
+
+            //spriteBatch.Draw(GunTexture, GunDestinationRectangle, null, Color.White, AimAngle, new Vector2(0, GunTexture.Height / 2), SpriteEffects.None, 0);
         }
 
         public bool CheckRightCollisions()

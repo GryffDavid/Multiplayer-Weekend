@@ -38,7 +38,7 @@ namespace Multiplayer1
 
         public void OnButtonClick(object source, PlayerShootEventArgs e)
         {
-            RocketList.Add(new Rocket(e.Player.Position, RocketTexture, 20f, e.Player.AimDirection, e.Player));
+            RocketList.Add(new Rocket(e.Player.Position + new Vector2(0, 10), RocketTexture, 15f, e.Player.AimDirection, e.Player));
         }
 
         public Game1()
@@ -115,7 +115,7 @@ namespace Multiplayer1
         
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DarkGray);
             spriteBatch.Begin();
             Level1.Draw(spriteBatch);
 

@@ -44,7 +44,12 @@ namespace Multiplayer1
         public void Draw(SpriteBatch spriteBatch)
         {
             if (Active == true)
-                spriteBatch.Draw(RocketTexture, DestinationRectangle, Color.White);
+            {
+                if (Velocity.X < 0)
+                    spriteBatch.Draw(RocketTexture, DestinationRectangle, Color.White);
+                else
+                    spriteBatch.Draw(RocketTexture, DestinationRectangle, null, Color.White, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
+            }
         }
     }
 }
