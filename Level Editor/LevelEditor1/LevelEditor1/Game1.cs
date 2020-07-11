@@ -14,7 +14,7 @@ using System.Xml.Serialization;
 
 namespace LevelEditor1
 {
-    public enum CollisionType { Solid, OneWay, Death };
+    public enum CollisionType { Solid, OneWay };
     enum PlacementMode { Tiles, Collision, Object, Foreground, Background };
 
     public class Game1 : Microsoft.Xna.Framework.Game
@@ -28,6 +28,7 @@ namespace LevelEditor1
         Level Level;
         SpriteFont Font;
         PlacementMode CurrentMode = PlacementMode.Tiles;
+        
 
         KeyboardState CurrentKeyboardState, PreviousKeyboardState;
         MouseState CurrentMouseState, PreviousMouseState;
@@ -145,10 +146,6 @@ namespace LevelEditor1
 
             xSizeSelect.Update();
             ySizeSelect.Update();
-
-            xSnapSelect.Update();
-            ySnapSelect.Update();
-
             PlaceTileSize = new Vector2(xSizeSelect.CurrentSize, ySizeSelect.CurrentSize);
 
             #region Update the current mode
@@ -491,85 +488,6 @@ namespace LevelEditor1
                     #endregion
                     break;
                 #endregion
-
-                #region Objects
-                case PlacementMode.Object:
-                    {
-                        CurrentTileSelection.Texture = TilesCollection;
-                        CurrentTileSelection.Update();
-
-                        if (LevelTemplateSprite.DestinationRectangle.Contains(new Point(CurrentMouseState.X, CurrentMouseState.Y)))
-                        {
-                            newTilePosition.X = (CurrentMouseState.X - CurrentMouseState.X % xSizeSelect.CurrentSize);
-                        }
-
-                        if (CurrentMouseState.LeftButton == ButtonState.Pressed &&
-                            CurrentMouseState.Y < LevelSizeTemplate.Height &&
-                            CurrentMouseState.Y > 0 &&
-                            CurrentMouseState.X < LevelSizeTemplate.Width &&
-                            CurrentMouseState.X > 0)
-                        {
-                            Vector2 tileXY = newTilePosition / 16;
-
-                            for (int x = 0; x < xSizeSelect.CurrentSize / 16; x++)
-                            {
-                                for (int y = 0; y < ySizeSelect.CurrentSize / 16; y++)
-                                {
-                                    Tile newTile = new Tile();
-                                    newTile.Size = new Vector2(16, 16);
-                                    newTile.TileChar = new Vector2(SelectedTileIndex.X + x, SelectedTileIndex.Y + y);
-                                    newTile.Position = new Vector2((tileXY.X + x) * 16, (tileXY.Y + y) * 16);
-                                    newTile.LoadContent(Content);
-
-                                    Level.MainTileList[(int)tileXY.Y + y][(int)tileXY.X + x] = newTile;
-                                }
-                            }
-                        }
-
-                        #region Select another object
-                        if (CurrentMouseState.LeftButton == ButtonState.Released &&
-                            PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                            CurrentTileSelection.DestinationRectangle.Contains(new Point(CurrentMouseState.X, CurrentMouseState.Y)))
-                        {
-                            if (CurrentMouseState.Y >= LevelSizeTemplate.Height + 32)
-                            {
-                                SelectedTilePosition = new Vector2(CurrentMouseState.X - CurrentMouseState.X % 16, CurrentMouseState.Y - CurrentMouseState.Y % 16);
-                                SelectedTileIndex.X = (int)(SelectedTilePosition.X / 16);
-                                SelectedTileIndex.Y = (int)(SelectedTilePosition.Y - LevelSizeTemplate.Height - 32) / 16;
-                            }
-                        }
-                        #endregion
-
-                        #region Remove object by right clicking
-                        if (LevelTemplateSprite.DestinationRectangle.Contains(new Point(CurrentMouseState.X, CurrentMouseState.Y)))
-                        {
-                            newTilePosition = new Vector2((CurrentMouseState.X - CurrentMouseState.X % xSizeSelect.CurrentSize), (CurrentMouseState.Y - CurrentMouseState.Y % ySizeSelect.CurrentSize));
-                        }
-
-                        if (CurrentMouseState.RightButton == ButtonState.Pressed &&
-                            CurrentMouseState.Y < LevelSizeTemplate.Height &&
-                            CurrentMouseState.Y > 0 &&
-                            CurrentMouseState.X < LevelSizeTemplate.Width &&
-                            CurrentMouseState.X > 0)
-                        {
-                            Vector2 tileXY = newTilePosition / 16;
-
-                            for (int x = 0; x < xSizeSelect.CurrentSize / 16; x++)
-                            {
-                                for (int y = 0; y < ySizeSelect.CurrentSize / 16; y++)
-                                {
-                                    Tile newTile = new Tile();
-                                    newTile.TileChar = new Vector2(0, 0);
-                                    newTile.LoadContent(Content);
-
-                                    Level.MainTileList[(int)tileXY.Y + y][(int)tileXY.X + x] = newTile;
-                                }
-                            }
-                        }
-                        #endregion
-                    }
-                    break;
-                #endregion
             }            
 
             PreviousKeyboardState = CurrentKeyboardState;
@@ -598,6 +516,8 @@ namespace LevelEditor1
 
             if (ForegroundVisible == true)
                 Level.DrawForegroundTiles(spriteBatch);
+
+            
 
             if (CollisionMaskVisible == true)
                 Level.DrawCollisions(spriteBatch);

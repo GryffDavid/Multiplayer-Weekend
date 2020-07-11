@@ -27,9 +27,6 @@ namespace LevelEditor1
             if (TileChar.X == 1)
                 CollisionType = CollisionType.OneWay;
 
-            if (TileChar.X == 2)
-                CollisionType = CollisionType.Death;
-
             switch (CollisionType)
             {
                 case CollisionType.Solid:
@@ -38,10 +35,6 @@ namespace LevelEditor1
 
                 case CollisionType.OneWay:
                     SourceRectangle = new Rectangle(16, 0, 16, 16);
-                    break;
-
-                case CollisionType.Death:
-                    SourceRectangle = new Rectangle(32, 0, 16, 16);
                     break;
             }
             
