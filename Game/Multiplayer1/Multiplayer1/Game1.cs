@@ -15,6 +15,7 @@ namespace Multiplayer1
     public enum PlayerControls { GamePad, KeyboardMouse };
     public enum GameState { MainMenu, Connecting, Game, Paused, EndScreen };
 
+
     public class Game1 : Microsoft.Xna.Framework.Game
     {
         GraphicsDeviceManager graphics;
@@ -22,12 +23,13 @@ namespace Multiplayer1
         Player[] Players = new Player[4];
 
         bool CheckedPlayers = false;
+        Level Level1;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferHeight = 736;
             Content.RootDirectory = "Content";
         }
         
@@ -38,6 +40,9 @@ namespace Multiplayer1
                 
         protected override void LoadContent()
         {
+            Level1 = new Level("Level1");
+            Level1.LoadContent(Content);
+
             if (CheckedPlayers == false)
                 CheckPlayers();
             
@@ -68,6 +73,8 @@ namespace Multiplayer1
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
+            Level1.Draw(spriteBatch);
+
             foreach (Player player in Players.Where(Player => Player != null))
             {
                 player.Draw(spriteBatch);
@@ -87,6 +94,7 @@ namespace Multiplayer1
                 if (gamePad[i].IsConnected == true)
                 {
                     Players[i] = new Player((PlayerIndex)i);
+                    Players[i].CurrentLevel = Level1;
                 }
             }
 

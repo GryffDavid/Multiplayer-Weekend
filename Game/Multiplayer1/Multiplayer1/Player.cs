@@ -9,16 +9,18 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Multiplayer1
 {
-    public enum GunState { GunState1, GunState2, GunState3, Grenade };
+    public enum GunState { GunState1 };
 
-    class Player
+    public class Player
     {
         Texture2D PlayerTexture, GunTexture;
 
+        public int CurrentHP;
         public float Gravity, AimAngle;
         public PlayerIndex PlayerIndex;
         public bool UseGamePad = false;
         public bool InAir = false;
+        public bool DoubleJumped = false;
 
         public Vector2 Position, Velocity, AimDirection, Friction, MaxSpeed;
         public Rectangle DestinationRectangle, GunDestinationRectangle;
@@ -29,6 +31,7 @@ namespace Multiplayer1
         GamePadThumbSticks Sticks;
         Vector2 MoveStick, AimStick;
 
+        public Level CurrentLevel;
 
         public GunState CurrentGunState;
 
@@ -53,41 +56,54 @@ namespace Multiplayer1
             CurrentKeyboardState = Keyboard.GetState();
             CurrentMouseState = Mouse.GetState();
 
-            #region Controller
-
-            AimDirection = MoveStick * new Vector2(1, -1);
-            AimAngle = (float)Math.Atan2(AimDirection.Y, AimDirection.X);
-
-            if (InAir == false)
+            if (UseGamePad == true)
             {
+                #region Controller
+                AimDirection = MoveStick * new Vector2(1, -1);
+                AimAngle = (float)Math.Atan2(AimDirection.Y, AimDirection.X);
+
                 Velocity.X += (MoveStick.X * 3f);
 
+                #region Stop Moving
                 if (MoveStick.X == 0)
                 {
-                    Velocity.X *= Friction.X;
+                    Velocity.X = 0;
+                } 
+                #endregion
+
+                #region Jumping
+                if (CurrentGamePadState.Buttons.A == ButtonState.Pressed &&
+                    PreviousGamePadState.Buttons.A == ButtonState.Released &&
+                    DoubleJumped == false)
+                {
+                    if (InAir == true)
+                    {
+                        DoubleJumped = true;
+                    }
+
+                    Velocity.Y -= 12f;
+                } 
+                #endregion
+
+                #region Shooting
+                if (CurrentGamePadState.Buttons.X == ButtonState.Pressed &&
+                    PreviousGamePadState.Buttons.X == ButtonState.Released)
+                {
+
                 }
-            }
+                #endregion
+                #endregion
 
-            if (CurrentGamePadState.Buttons.A == ButtonState.Pressed &&
-                PreviousGamePadState.Buttons.A == ButtonState.Released)
+            }
+            else
             {
-                //JUMP
-                Velocity.Y -= 10f;
+                #region Keyboard + Mouse
+
+                #endregion
             }
-            #endregion
-
-            #region Mouse
-
-            #endregion
-
-            #region Keyboard
-
-            #endregion
-
-            Position += Velocity;
-
             #region Handle Physics
             Velocity.Y += Gravity;
+            Position += Velocity;
 
             if (Velocity.X > MaxSpeed.X)
             {
@@ -104,6 +120,7 @@ namespace Multiplayer1
                 Position.Y = 500;
                 Velocity.Y = 0;
                 InAir = false;
+                DoubleJumped = false;
             }
             else
             {
