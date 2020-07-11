@@ -1,10 +1,10 @@
 Goals for multiplayer shooter:
 
--Able to use controllers for local multiplayer
+**-Able to use controllers for local multiplayer
 -Able to use multiple computers for LAN multiplayer
--Score count and limit
--At least 3 types of gun
--Grenades
+**-Score count and limit
+**-At least 3 types of gun
+**-Grenades
 
 Crazy easy. Let's crush it.
 
@@ -13,10 +13,10 @@ Crazy easy. Let's crush it.
 -Teleporters - That can portal bullets too
 -Melee attack
 -Health packs
--Ammo packs
+**-Ammo packs
 -Bounce pads
--Gibs
+**-Gibs
 -Moving platforms
 -Wall jumping
--Double jumping
+**-Double jumping
 //
