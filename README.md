@@ -22,7 +22,7 @@ This small local multiplayer arena platformer was made over the course of a week
 I was pretty happy with how this project turned out. I ended up playing this game with my brother and his girlfriend and it was amazing to see how much fun it was with us all shouting at each other 
 
 ### Level Editor:
-![Image of Editor](https://github.com/GryffDavid/READMEImages/blob/master/WeekendMutliplayerEditor1.png)
+![Image of Editor](https://github.com/GryffDavid/READMEImages/blob/master/MultiplayerWeekend/WeekendMutliplayerEditor1.png)
 
 ### Game:
-![Image of Game](https://github.com/GryffDavid/READMEImages/blob/master/WeekendMultiplayerGame1.png)
+![Image of Game](https://github.com/GryffDavid/READMEImages/blob/master/MultiplayerWeekend/WeekendMultiplayerGame1.png)
