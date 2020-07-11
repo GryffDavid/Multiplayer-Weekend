@@ -13,6 +13,7 @@ namespace Multiplayer1
         Vector2 Position, Size;
         Texture2D TileTexture;
         public Rectangle BoundingBox;
+        public BoundingBox MyBox;
 
         public Tile(Vector2 position, Vector2 size)
         {
