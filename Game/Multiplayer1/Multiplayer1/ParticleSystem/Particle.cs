@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Multiplayer1.ParticleSystem
+namespace Multiplayer1
 {
     public class Particle
     {
@@ -350,7 +350,7 @@ namespace Multiplayer1.ParticleSystem
 
                 Color = CurrentColor * CurrentTransparency;
 
-                if (RotationIncrement != 0)
+                //if (RotationIncrement != 0)
                     RadRotation = MathHelper.ToRadians(CurrentRotation);
             }
         }

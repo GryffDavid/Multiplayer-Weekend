@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 
-namespace Multiplayer1.ParticleSystem
+namespace Multiplayer1
 {
     public class Emitter
     {

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Multiplayer1
 {
@@ -55,13 +56,17 @@ namespace Multiplayer1
                          StandRightTexture, StandLeftTexture,
                          JumpRightTexture, JumpLeftTexture;
 
+        public SoundEffect JumpLand1, Jump1;
+
+        public DynamicSoundEffectInstance DynamicSound;
+
         public void Initialize(PlayerShootHappenedEventHandler thing)
         {
             if (PlayerShootHappened == null)
                 PlayerShootHappened += thing;
 
-            MaxShootDelay = 500;
-            CurrentShootDelay = 500;
+            MaxShootDelay = 250;
+            CurrentShootDelay = 0;
 
             Score = 0;
             CurrentHP = 1;
@@ -129,11 +134,17 @@ namespace Multiplayer1
                 #region Jumping
                 if (CurrentGamePadState.Buttons.A == ButtonState.Pressed &&
                     PreviousGamePadState.Buttons.A == ButtonState.Released &&
-                    DoubleJumped == false)
+                    DoubleJumped == false &&
+                    Velocity.Y >= 0)
                 {
                     if (InAir == true)
                     {
                         DoubleJumped = true;
+                    }
+
+                    if (InAir == false)
+                    {
+                        Jump1.Play(1.0f, 0f, 0f);
                     }
 
                     Velocity.Y -= 12f;
@@ -214,6 +225,9 @@ namespace Multiplayer1
             }
             else
             {
+                if (InAir == true)
+                    JumpLand1.Play(0.15f, 0f, 0f);
+
                 Velocity.Y = 0;
                 InAir = false;
                 DoubleJumped = false;
@@ -239,10 +253,9 @@ namespace Multiplayer1
                     CurrentAnimation = JumpRight;
 
                 if (AimDirection.X < 0)
-                    CurrentAnimation = JumpLeft;
+                    CurrentAnimation = JumpLeft;                
             }
                 
-
             if (CurrentHP == 0)
             {
                 Position = new Vector2(32, 32);
@@ -260,19 +273,24 @@ namespace Multiplayer1
             PreviousMouseState = CurrentMouseState;
         }
 
-        public void LoadContent(ContentManager contentManager)
+        public void LoadContent(ContentManager content)
         {
-            PlayerTexture = contentManager.Load<Texture2D>("PlayerTexture");
-            GunTexture = contentManager.Load<Texture2D>("GunTexture");
+            JumpLand1 = content.Load<SoundEffect>("SoundEffects/Player/JumpLand1");
+            Jump1 = content.Load<SoundEffect>("SoundEffects/Player/Jump1");
 
-            RunRightTexture = contentManager.Load<Texture2D>("Player1/RunRight");
-            RunLeftTexture = contentManager.Load<Texture2D>("Player1/RunLeft");
+            DynamicSound = new DynamicSoundEffectInstance(48000, AudioChannels.Stereo);
 
-            StandRightTexture = contentManager.Load<Texture2D>("Player1/StandRight");
-            StandLeftTexture = contentManager.Load<Texture2D>("Player1/StandLeft");
+            PlayerTexture = content.Load<Texture2D>("PlayerTexture");
+            GunTexture = content.Load<Texture2D>("GunTexture");
 
-            JumpRightTexture = contentManager.Load<Texture2D>("Player1/JumpRight");
-            JumpLeftTexture = contentManager.Load<Texture2D>("Player1/JumpLeft");
+            RunRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex+1) + "/RunRight");
+            RunLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/RunLeft");
+
+            StandRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/StandRight");
+            StandLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/StandLeft");
+
+            JumpRightTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/JumpRight");
+            JumpLeftTexture = content.Load<Texture2D>("Player" + ((int)PlayerIndex + 1) + "/JumpLeft");
 
             RunRightAnimation = new Animation(RunRightTexture, 8, 80);
             RunLeftAnimation = new Animation(RunLeftTexture, 8, 80);
@@ -297,7 +315,7 @@ namespace Multiplayer1
 
         public bool CheckRightCollisions()
         {
-            foreach (List<Tile> subList in CurrentLevel.MainTileList)
+            foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
             {
                 foreach (Tile tile in subList)
                 {
@@ -318,7 +336,7 @@ namespace Multiplayer1
 
         public bool CheckLeftCollisions()
         {
-            foreach (List<Tile> subList in CurrentLevel.MainTileList)
+            foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
             {
                 foreach (Tile tile in subList)
                 {
@@ -339,7 +357,7 @@ namespace Multiplayer1
 
         public bool CheckUpCollisions()
         {
-            foreach (List<Tile> subList in CurrentLevel.MainTileList)
+            foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
             {
                 foreach (Tile tile in subList)
                 {
@@ -361,13 +379,14 @@ namespace Multiplayer1
 
         public bool CheckDownCollisions()
         {
-            foreach (List<Tile> subList in CurrentLevel.MainTileList)
+            foreach (List<Tile> subList in CurrentLevel.CollisionTileList)
             {
                 foreach (Tile tile in subList)
                 {
                     for (int i = 0; i < 32; i++)
                     {
-                        if (tile.BoundingBox.Contains(new Point((int)(CollisionRectangle.Left + i), (int)(CollisionRectangle.Bottom + Velocity.Y + 1))) == true)
+                        if (tile.BoundingBox.Contains(new Point((int)(CollisionRectangle.Left + i), 
+                                                                (int)(CollisionRectangle.Bottom + Velocity.Y + 1))) == true)
                         {
                             Position.Y += (tile.BoundingBox.Top - CollisionRectangle.Bottom);
                             Velocity.Y = 0;                            

@@ -11,7 +11,7 @@ namespace Multiplayer1
 {
     public class Level
     {
-        public List<List<Tile>> MainTileList = new List<List<Tile>>();
+        public List<List<Tile>> CollisionTileList = new List<List<Tile>>();
         public List<string> LinesList = new List<string>();
 
         public Level(string levelName)
@@ -37,31 +37,35 @@ namespace Multiplayer1
                         }
                     }
 
-                    MainTileList.Add(SubList);
+                    CollisionTileList.Add(SubList);
                 }
             }
         }
 
         public void LoadContent(ContentManager contentManager)
         {
-            for (int y = 0; y < MainTileList.Count; y++)
+            #region Load Collision Tiles
+            for (int y = 0; y < CollisionTileList.Count; y++)
             {
-                for (int x = 0; x < MainTileList[y].Count; x++)
+                for (int x = 0; x < CollisionTileList[y].Count; x++)
                 {
-                    MainTileList[y][x].LoadContent(contentManager);
+                    CollisionTileList[y][x].LoadContent(contentManager);
                 }
             }
+            #endregion
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            for (int y = 0; y < MainTileList.Count; y++)
+            #region Draw Collision Tiles
+            for (int y = 0; y < CollisionTileList.Count; y++)
             {
-                for (int x = 0; x < MainTileList[y].Count; x++)
+                for (int x = 0; x < CollisionTileList[y].Count; x++)
                 {
-                    MainTileList[y][x].Draw(spriteBatch);
+                    CollisionTileList[y][x].Draw(spriteBatch);
                 }
             }
+            #endregion
         }
     }
 }

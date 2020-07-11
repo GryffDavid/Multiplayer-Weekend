@@ -27,6 +27,8 @@ namespace Multiplayer1
         SpriteBatch spriteBatch;
         Texture2D RocketTexture;
 
+        Texture2D SparkTexture, RoundSparkTexture;
+
         Player[] Players = new Player[4];
 
         bool CheckedPlayers = false;
@@ -36,8 +38,14 @@ namespace Multiplayer1
 
         SpriteFont Font;
 
+        List<Emitter> EmitterList = new List<Emitter>();
+
+        public SoundEffect GunShot1, GunCollision1;
+        
+
         public void OnButtonClick(object source, PlayerShootEventArgs e)
         {
+            GunShot1.Play(0.25f, 0, 0);
             RocketList.Add(new Rocket(e.Player.Position + new Vector2(0, 10), RocketTexture, 15f, e.Player.AimDirection, e.Player));
         }
 
@@ -59,6 +67,11 @@ namespace Multiplayer1
         {
             Level1 = new Level("Level1");
             Level1.LoadContent(Content);
+
+            GunShot1 = Content.Load<SoundEffect>("SoundEffects/GunShot1");
+            GunCollision1 = Content.Load<SoundEffect>("SoundEffects/GunCollision1");
+
+            SparkTexture = Content.Load<Texture2D>("ParticleTextures/Spark");
 
             RocketTexture = Content.Load<Texture2D>("GunTexture");
 
@@ -82,6 +95,13 @@ namespace Multiplayer1
         
         protected override void Update(GameTime gameTime)
         {
+            foreach (Emitter emitter in EmitterList)
+            {
+                emitter.Update(gameTime);
+            }
+
+            EmitterList.RemoveAll(Emitter => Emitter.AddMore == false && Emitter.ParticleList.Count == 0);
+
             foreach (Player player in Players.Where(Player => Player != null))
             {
                 player.Update(gameTime);
@@ -91,9 +111,13 @@ namespace Multiplayer1
             {
                 rocket.Update(gameTime);
 
-                if (Level1.MainTileList.Any(TileList => TileList.Any(Tile => Tile.BoundingBox.Intersects(rocket.DestinationRectangle))))
+                if (Level1.CollisionTileList.Any(TileList => TileList.Any(Tile => Tile.BoundingBox.Intersects(rocket.DestinationRectangle))))
                 {
+                    GunCollision1.Play(0.25f, 0, 0);
                     rocket.Active = false;
+
+                    Emitter sparkEmitter = new Emitter(SparkTexture, rocket.Position, new Vector2(0, 360), new Vector2(2, 3), new Vector2(250, 450), 1f, true, new Vector2(0, 0), new Vector2(0, 0), Vector2.One, Color.Orange, Color.OrangeRed, 0.2f, 0.1f, 1, 2, false, new Vector2(0, 720), false, 0f, false, false, null, null, null, true);
+                    EmitterList.Add(sparkEmitter);
                 }
 
                 if (Players.Any(Player =>  
@@ -116,9 +140,10 @@ namespace Multiplayer1
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.DarkGray);
-            spriteBatch.Begin();
-            Level1.Draw(spriteBatch);
 
+            spriteBatch.Begin();
+            Level1.Draw(spriteBatch);           
+            
             foreach (Player player in Players.Where(Player => Player != null))
             {
                 player.Draw(spriteBatch);
@@ -135,6 +160,16 @@ namespace Multiplayer1
             }
 
             spriteBatch.End();
+
+
+            spriteBatch.Begin(SpriteSortMode.Texture, BlendState.Additive);
+            foreach (Emitter emitter in EmitterList)
+            {
+                emitter.Draw(spriteBatch);
+            }
+            Level1.Draw(spriteBatch);
+            spriteBatch.End();
+           
             base.Draw(gameTime);
         }
 
