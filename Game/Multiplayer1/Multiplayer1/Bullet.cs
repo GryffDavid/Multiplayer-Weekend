@@ -8,20 +8,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Multiplayer1
 {
-    class Rocket
+    class Bullet
     {
-        Texture2D RocketTexture;
+        Texture2D BulletTexture;
         public Player SourcePlayer;
         public float Damage, BlastRadius;
         public Vector2 Velocity, Direction, Position;
         public float Rotation;
-        public Rectangle DestinationRectangle;
+        public Rectangle DestinationRectangle, CollisionRectangle;
         public bool Active = true;
 
-        public Rocket(Vector2 position, Texture2D texture, float speed, Vector2 direction, Player sourcePlayer)
+        public Bullet(Vector2 position, Texture2D texture, float speed, Vector2 direction, Player sourcePlayer)
         {
             Position = position;
-            RocketTexture = texture;
+            BulletTexture = texture;
             Direction = direction;
             Velocity = Direction * speed;
             SourcePlayer = sourcePlayer;
@@ -32,7 +32,8 @@ namespace Multiplayer1
             if (Active == true)
             {
                 Position += Velocity;
-                DestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, RocketTexture.Width, RocketTexture.Height);
+                DestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, BulletTexture.Width, BulletTexture.Height);
+                CollisionRectangle = new Rectangle((int)(Position.X + BulletTexture.Width * 0.25f), (int)(Position.Y + BulletTexture.Width * 0.25f), BulletTexture.Width / 2, BulletTexture.Height / 2);
             }
         }
 
@@ -46,9 +47,9 @@ namespace Multiplayer1
             if (Active == true)
             {
                 if (Velocity.X < 0)
-                    spriteBatch.Draw(RocketTexture, DestinationRectangle, Color.White);
+                    spriteBatch.Draw(BulletTexture, DestinationRectangle, Color.White);
                 else
-                    spriteBatch.Draw(RocketTexture, DestinationRectangle, null, Color.White, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
+                    spriteBatch.Draw(BulletTexture, DestinationRectangle, null, Color.White, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
             }
         }
     }

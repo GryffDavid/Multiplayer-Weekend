@@ -10,10 +10,10 @@ namespace Multiplayer1
 {
     class Rocket
     {
-        Texture2D RocketTexture;
+        Texture2D BulletTexture;
         public Player SourcePlayer;
         public float Damage, BlastRadius;
-        public Vector2 Velocity, Direction, Position;
+        public Vector2 Velocity, Direction, Position, StartPosition;
         public float Rotation;
         public Rectangle DestinationRectangle;
         public bool Active = true;
@@ -21,7 +21,8 @@ namespace Multiplayer1
         public Rocket(Vector2 position, Texture2D texture, float speed, Vector2 direction, Player sourcePlayer)
         {
             Position = position;
-            RocketTexture = texture;
+            StartPosition = position;
+            BulletTexture = texture;
             Direction = direction;
             Velocity = Direction * speed;
             SourcePlayer = sourcePlayer;
@@ -32,8 +33,7 @@ namespace Multiplayer1
             if (Active == true)
             {
                 Position += Velocity;
-                Rotation = (float)Math.Atan2(Velocity.Y, Velocity.X);
-                DestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, RocketTexture.Width, RocketTexture.Height);
+                DestinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, BulletTexture.Width, BulletTexture.Height);
             }
         }
 
@@ -46,7 +46,10 @@ namespace Multiplayer1
         {
             if (Active == true)
             {
-                    spriteBatch.Draw(RocketTexture, DestinationRectangle, null, Color.White, Rotation, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
+                if (Velocity.X < 0)
+                    spriteBatch.Draw(BulletTexture, DestinationRectangle, Color.White);
+                else
+                    spriteBatch.Draw(BulletTexture, DestinationRectangle, null, Color.White, 0, Vector2.Zero, SpriteEffects.FlipHorizontally, 0);
             }
         }
     }

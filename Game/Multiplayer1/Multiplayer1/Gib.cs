@@ -22,7 +22,7 @@ namespace Multiplayer1
         public float CurrentTime, MaxTime;
         public int BlastRadius = 96;
 
-        public float Rotation;
+        public float Rotation, RotationIncrement;
         public Rectangle DestinationRectangle, CollisionRectangle;
 
         public bool Active = true;
@@ -41,6 +41,7 @@ namespace Multiplayer1
             Velocity = direction * Speed;
             Rotation = MathHelper.ToRadians(Random.Next(0, 360));
             MaxTime = Random.Next(1000, 2000);
+            RotationIncrement = MathHelper.ToRadians(3);
 
             Emitter newEmitter = new Emitter(emitterTexture, Position, new Vector2(0, 360), new Vector2(0, 2), new Vector2(500, 1500),
                                              0.85f, true, new Vector2(0, 360), new Vector2(-3, 3), new Vector2(0.5f, 1f), Color.DarkRed, Color.DarkRed,
@@ -50,7 +51,6 @@ namespace Multiplayer1
 
         public void Update(GameTime gameTime)
         {
-            
             CurrentTime += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if (CurrentTime >= MaxTime)
@@ -71,6 +71,8 @@ namespace Multiplayer1
                 {
                     float dir = (float)Math.Atan2(-Velocity.Y, -Velocity.X);
                     emitter.AngleRange = new Vector2(dir, dir);
+                    RotationIncrement = MathHelper.ToRadians(Random.Next(0, 4)) * (Velocity.X + Velocity.Y);
+                    Rotation += RotationIncrement;
                     emitter.AddMore = true;
                 }
                 else
@@ -95,7 +97,7 @@ namespace Multiplayer1
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, new Rectangle((int)Position.X, (int)Position.Y+4, (int)(Texture.Width*1.5f), (int)(Texture.Height*1.5f)), null,
+            spriteBatch.Draw(Texture, new Rectangle((int)Position.X, (int)Position.Y+4, (int)(Texture.Width), (int)(Texture.Height)), null,
                              GibColor, Rotation, new Vector2(Texture.Width / 2, Texture.Height / 2), SpriteEffects.None, 0);
 
             foreach (Emitter emitter in EmitterList)

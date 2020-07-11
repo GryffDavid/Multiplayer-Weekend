@@ -8,86 +8,47 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Multiplayer1
 {
-    class Grenade
+    class AmmoPack
     {
-        static Random Random = new Random();
+        Texture2D Texture;
+        Vector2 Position;
+        Vector2 Velocity;
         public Level CurrentLevel;
-        public Texture2D GrenadeTexture;
 
-        public Vector2 Position, Velocity;
-        public float Speed;
+        public Rectangle CollisionRectangle;
 
-        public float CurrentTime, MaxTime;
-        public int BlastRadius = 144;
-
-        public float Rotation;
-        public Rectangle DestinationRectangle, CollisionRectangle;
-
-        public bool Active = true;
-        public object Source;
-
-        public Grenade(Texture2D texture, Vector2 position, Vector2 direction, float speed, object source)
+        public AmmoPack(Vector2 position, Texture2D texture)
         {
-            GrenadeTexture = texture;
             Position = position;
-            Speed = speed;
-            Velocity = direction * Speed;            
-            Source = source;
+            Texture = texture;
+        }
 
-            MaxTime = 1000;
+        public void LoadContent(ContentManager content)
+        {
+
         }
 
         public void Update(GameTime gameTime)
         {
-            CurrentTime += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            CollisionRectangle = new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);
 
-            if (CurrentTime >= MaxTime)
-            {
-                Active = false;
-            }
+            CheckDownCollisions();
 
-            Position += (Velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds * 60f));
-
-            if (Velocity.X > 30 || Velocity.Y > 30)
-            {
-                int p = 0;
-            }
-
-            Velocity.Y += 0.6f;
-
-            Velocity *= new Vector2(0.99f, 0.95f);
-
-            CollisionRectangle = new Rectangle((int)Position.X, (int)Position.Y, GrenadeTexture.Width, GrenadeTexture.Height);
-
-            if (Velocity.X > 0)
-            {
-                CheckRightCollisions();
-            }
-
-            if (Velocity.X < 0)
-            {
-                CheckLeftCollisions();
-            }
-
-            if (Velocity.Y > 0)
-            {
-                CheckDownCollisions();
-            }
-
-            if (Velocity.Y < 0)
-            {
-                CheckUpCollisions();
-            }            
+            Position += Velocity;
+            Velocity.Y += 0.5f;
 
             //CheckRightCollisions();
-            //CheckDownCollisions();
+
             //CheckLeftCollisions();
+
+            
+
             //CheckUpCollisions();
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(GrenadeTexture, Position, Color.White);
+            spriteBatch.Draw(Texture, Position, Color.White);
         }
 
         public bool CheckRightCollisions()
@@ -101,7 +62,7 @@ namespace Multiplayer1
                         if (tile.BoundingBox.Contains(new Point((int)(CollisionRectangle.Right + Velocity.X), (int)(CollisionRectangle.Top + i))) == true)
                         {
                             Position.X -= (CollisionRectangle.Right - tile.BoundingBox.Left);
-                            Velocity.X = -Velocity.X * 0.85f;
+                            Velocity.X = 0;
                             return true;
                         }
                     }
@@ -122,7 +83,7 @@ namespace Multiplayer1
                         if (tile.BoundingBox.Contains(new Point((int)(CollisionRectangle.Left + Velocity.X - 1), (int)(CollisionRectangle.Top + i))) == true)
                         {
                             Position.X += (tile.BoundingBox.Right - CollisionRectangle.Left);
-                            Velocity.X = -Velocity.X * 0.85f;
+                            Velocity.X = 0;
                             return true;
                         }
                     }
@@ -144,7 +105,7 @@ namespace Multiplayer1
                             if (tile.BoundingBox.Contains(new Point((int)(CollisionRectangle.Left + i), (int)(CollisionRectangle.Top + Velocity.Y - 1))) == true)
                             {
                                 Position.Y += (tile.BoundingBox.Bottom - CollisionRectangle.Top);
-                                Velocity.Y = -Velocity.Y * 0.85f;
+                                Velocity.Y = 0;
                                 return true;
                             }
                     }
@@ -166,7 +127,7 @@ namespace Multiplayer1
                                                                 (int)(CollisionRectangle.Bottom + Velocity.Y + 1))) == true)
                         {
                             Position.Y += (tile.BoundingBox.Top - CollisionRectangle.Bottom);
-                            Velocity.Y = -Velocity.Y * 0.85f;
+                            Velocity.Y = 0;
                             return true;
                         }
                     }
