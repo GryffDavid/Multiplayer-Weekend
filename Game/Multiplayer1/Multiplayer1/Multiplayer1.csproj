@@ -76,9 +76,11 @@
     <Compile Include="Animation.cs" />
     <Compile Include="Background.cs" />
     <Compile Include="CollisionTile.cs" />
+    <Compile Include="Copy of Bullet.cs" />
     <Compile Include="Corpse.cs" />
     <Compile Include="Decal.cs" />
     <Compile Include="Explosion.cs" />
+    <Compile Include="Gib.cs" />
     <Compile Include="Grenade.cs" />
     <Compile Include="HealthPack.cs" />
     <Compile Include="Level.cs" />
@@ -88,7 +90,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="Rocket.cs" />
+    <Compile Include="Bullet.cs" />
     <Compile Include="Tile.cs" />
   </ItemGroup>
   <ItemGroup>

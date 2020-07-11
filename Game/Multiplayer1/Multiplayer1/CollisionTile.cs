@@ -35,6 +35,18 @@ namespace Multiplayer1
 
         new public void Draw(SpriteBatch spriteBatch)
         {
+            if (TopDecal != null)
+                TopDecal.Draw(spriteBatch);
+
+            if (RightDecal != null)
+                RightDecal.Draw(spriteBatch);
+
+            if (LeftDecal != null)
+                LeftDecal.Draw(spriteBatch);
+
+            if (BottomDecal != null)
+                BottomDecal.Draw(spriteBatch);
+
             spriteBatch.Draw(TileTexture, DestinationRectangle, SourceRectangle, Color.Lerp(Color.White, Color.Transparent, 0.0f));
         }
     }

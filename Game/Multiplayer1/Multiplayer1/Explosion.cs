@@ -9,6 +9,7 @@ namespace Multiplayer1
     public class Explosion
     {
         public Vector2 Position;
+        public object Source;
         public int BlastRadius;
         public int Damage;
     }

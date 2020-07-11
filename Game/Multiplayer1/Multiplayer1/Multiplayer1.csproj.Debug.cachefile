@@ -94,6 +94,16 @@ Content\Player4\WallSlideLeft.xnb
 Content\Player4\WallSlideRight.xnb
 Content\GrenadeTexture.xnb
 Content\ParticleTextures\ExplosionParticle2.xnb
+Content\ParticleTextures\DustTexture.xnb
+Content\ParticleTextures\Smoke.xnb
+Content\ParticleTextures\Splodge.xnb
+Content\Decals\TileBloodDecal2.xnb
+Content\Decals\TileBloodDecal3.xnb
+Content\Decals\TileBloodDecal1.xnb
+Content\Decals\TileBloodDecal4.xnb
+Content\Player1\Head.xnb
+Content\Background\Background1.xnb
+Content\GrenadeIcon.xnb
 Content\SpriteFont.xnb
 Content\SoundEffects\GunShot1.xnb
 Content\SoundEffects\Player\Jump1.xnb
@@ -107,4 +117,9 @@ Content\SoundEffects\Throw\Throw1.xnb
 Content\SoundEffects\Throw\Throw2.xnb
 Content\SoundEffects\Throw\Throw3.xnb
 Content\SoundEffects\Throw\Throw4.xnb
-Content\ParticleTextures\DustTexture.xnb
+Content\SoundEffects\DeathAlert.xnb
+Content\SoundEffects\Gore\Gore3.xnb
+Content\SoundEffects\Gore\Gore4.xnb
+Content\SoundEffects\Gore\Gore5.xnb
+Content\SoundEffects\Gore\Gore2.xnb
+Content\SoundEffects\Gore\Gore1.xnb

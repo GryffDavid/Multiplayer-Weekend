@@ -58,7 +58,9 @@ namespace Multiplayer1
         SpriteBatch spriteBatch;
         Texture2D RocketTexture, GrenadeTexture;
 
-        Texture2D SparkTexture, RoundSparkTexture, ExplosionParticle2;
+        Texture2D SparkTexture, RoundSparkTexture, ExplosionParticle2, Splodge,
+                  DecalTexture1, DecalTexture2, DecalTexture3, DecalTexture4,
+                  Player1Head, Background1;
 
         Player[] Players = new Player[4];
 
@@ -67,13 +69,16 @@ namespace Multiplayer1
 
         List<Rocket> RocketList = new List<Rocket>();
         List<Grenade> GrenadeList = new List<Grenade>();
+        List<Gib> GibList = new List<Gib>();
 
         SpriteFont Font;
 
         List<Emitter> EmitterList = new List<Emitter>();
         List<Emitter> EmitterList2 = new List<Emitter>();
 
-        public SoundEffect GunShot1, GunCollision1, GrenadeExplosion1, GrenadeExplosion2, GrenadeExplosion3;
+        public SoundEffect GunShot1, GunCollision1, GrenadeExplosion1, 
+                           GrenadeExplosion2, GrenadeExplosion3,
+                           Gore1, Gore2, Gore3, Gore4, Gore5;
 
         public Color FireColor = new Color(Color.DarkOrange.R, Color.DarkOrange.G, Color.DarkOrange.B, 150);
         public Color FireColor2 = new Color(255, Color.DarkOrange.G, Color.DarkOrange.B, 50);
@@ -97,7 +102,7 @@ namespace Multiplayer1
 
         public void OnPlayerGrenade(object source, PlayerGrenadeEventArgs e)
         {
-            Grenade newGrenade = new Grenade(GrenadeTexture, new Vector2(e.Player.DestinationRectangle.Center.X, e.Player.DestinationRectangle.Center.Y - 12), new Vector2(e.Player.AimDirection.X, -0.5f), 6 +  Math.Abs(e.Player.Velocity.X));
+            Grenade newGrenade = new Grenade(GrenadeTexture, new Vector2(e.Player.DestinationRectangle.Center.X, e.Player.DestinationRectangle.Center.Y - 12), new Vector2(e.Player.AimDirection.X, -0.5f), (Random.Next(6, 12)) +  Math.Abs(e.Player.Velocity.X), source);
             newGrenade.CurrentLevel = Level1;
             GrenadeList.Add(newGrenade);
         }
@@ -131,6 +136,22 @@ namespace Multiplayer1
             GrenadeExplosion2 = Content.Load<SoundEffect>("SoundEffects/Grenade/GrenadeExplosion2");
             GrenadeExplosion3 = Content.Load<SoundEffect>("SoundEffects/Grenade/GrenadeExplosion3");
 
+            Player1Head = Content.Load<Texture2D>("Player1/Head");
+
+            Background1 = Content.Load<Texture2D>("Background/Background1");
+
+            Gore1 = Content.Load<SoundEffect>("SoundEffects/Gore/Gore1");
+            Gore2 = Content.Load<SoundEffect>("SoundEffects/Gore/Gore2");
+            Gore3 = Content.Load<SoundEffect>("SoundEffects/Gore/Gore3");
+            Gore4 = Content.Load<SoundEffect>("SoundEffects/Gore/Gore4");
+            Gore5 = Content.Load<SoundEffect>("SoundEffects/Gore/Gore5");
+
+            DecalTexture1 = Content.Load<Texture2D>("Decals/TileBloodDecal1");
+            DecalTexture2 = Content.Load<Texture2D>("Decals/TileBloodDecal2");
+            DecalTexture3 = Content.Load<Texture2D>("Decals/TileBloodDecal3");
+            DecalTexture4 = Content.Load<Texture2D>("Decals/TileBloodDecal4");
+
+            Splodge = Content.Load<Texture2D>("ParticleTextures/Splodge");
             SparkTexture = Content.Load<Texture2D>("ParticleTextures/Spark");
             RoundSparkTexture = Content.Load<Texture2D>("ParticleTextures/RoundSpark");
             ExplosionParticle2 = Content.Load<Texture2D>("ParticleTextures/ExplosionParticle2");
@@ -162,6 +183,13 @@ namespace Multiplayer1
             {
                 case GameState.Game:
                     {
+                        foreach (Gib gib in GibList)
+                        {
+                            gib.Update(gameTime);
+                        }
+
+                        GibList.RemoveAll(Gib => Gib.Active == false && Gib.EmitterList.All(Emitter => Emitter.Active == false && Emitter.ParticleList.Count == 0));
+
                         foreach (Emitter emitter in EmitterList)
                         {
                             emitter.Update(gameTime);
@@ -187,7 +215,7 @@ namespace Multiplayer1
 
                             if (Level1.CollisionTileList.Any(Tile => Tile.BoundingBox.Intersects(rocket.DestinationRectangle)))
                             {
-                                GunCollision1.Play(0.25f, 0, 0);
+                                GunCollision1.Play(0.5f, 0, 0);
                                 rocket.Active = false;
 
                                 Emitter sparkEmitter = new Emitter(SparkTexture, rocket.Position, new Vector2(0, 360), new Vector2(2, 3), new Vector2(250, 450), 1f, true, new Vector2(0, 0), new Vector2(0, 0), Vector2.One, Color.Orange, Color.OrangeRed, 0.2f, 0.1f, 1, 2, false, new Vector2(0, 720), false, 0f, false, false, null, null, null, true);
@@ -201,7 +229,46 @@ namespace Multiplayer1
                                 Player.DestinationRectangle.Intersects(rocket.DestinationRectangle)))
                             {
                                 rocket.Active = false;
-                                Players.First(Player => Player.DestinationRectangle.Intersects(rocket.DestinationRectangle) && Player != rocket.SourcePlayer).CurrentHP = 0;
+                                Player hitPlayer = Players.First(Player => Player.DestinationRectangle.Intersects(rocket.DestinationRectangle) && Player != rocket.SourcePlayer);
+                                
+                                if (hitPlayer.CurrentHP > 0)
+                                {
+                                    GunCollision1.Play(0.2f, 0, 0);
+
+                                    for (int i = 0; i < 20; i++)
+                                    {
+                                        float angle = (float)Math.Atan2(rocket.Velocity.Y, rocket.Velocity.X) + MathHelper.ToRadians((float)RandomDouble(-100, 100));
+                                        Vector2 dir = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+                                        dir.Normalize();
+
+                                        Gib newGib = new Gib(Splodge, new Vector2(hitPlayer.DestinationRectangle.Center.X, 
+                                                                                  hitPlayer.DestinationRectangle.Center.Y), 
+                                                             dir, 10, RandomTexture(DecalTexture1, DecalTexture2, DecalTexture3, DecalTexture4), Splodge, Color.Maroon);
+                                        newGib.CurrentLevel = Level1;
+                                        GibList.Add(newGib);                                        
+                                    }
+
+
+                                    //Hit in the head
+                                    if (rocket.DestinationRectangle.Bottom < hitPlayer.DestinationRectangle.Top + 13)
+                                    {
+
+                                        float angle2 = (float)Math.Atan2(rocket.Velocity.Y, rocket.Velocity.X) + MathHelper.ToRadians((float)RandomDouble(-100, 100));
+                                        Vector2 dir2 = new Vector2((float)Math.Cos(angle2), (float)Math.Sin(angle2));
+                                        dir2.Normalize();
+
+                                        Gib newGib2 = new Gib(Player1Head, new Vector2(hitPlayer.DestinationRectangle.Center.X,
+                                                                                      hitPlayer.DestinationRectangle.Center.Y),
+                                                                 dir2, 10, RandomTexture(DecalTexture1, DecalTexture2, DecalTexture3, DecalTexture4), Splodge, Color.White);
+                                        newGib2.CurrentLevel = Level1;
+                                        GibList.Add(newGib2);
+                                    }
+                                }
+
+                                hitPlayer.CurrentHP = 0;
+
+                                //Gore1.Play();
+                                PlayRandomSound(Gore2);
                                 rocket.SourcePlayer.Score++;
                             }
                         }
@@ -212,7 +279,13 @@ namespace Multiplayer1
 
                             if (grenade.Active == false)
                             {
-                                CreateExplosion(new Explosion() { Position = grenade.Position, BlastRadius = grenade.BlastRadius, Damage = 1 }, grenade);
+                                CreateExplosion(new Explosion() 
+                                { 
+                                    Position = grenade.Position, 
+                                    BlastRadius = grenade.BlastRadius, 
+                                    Damage = 1,
+                                    Source = grenade.Source
+                                }, grenade);
                             }
                         }
 
@@ -236,9 +309,10 @@ namespace Multiplayer1
             GraphicsDevice.Clear(Color.DarkGray);
 
             spriteBatch.Begin();
+            spriteBatch.Draw(Background1, Vector2.Zero, Color.White);
             //Level1.Draw(spriteBatch);           
             Level1.DrawTiles(spriteBatch);
-
+            Level1.DrawCollisions(spriteBatch);
             Level1.DrawBackgroundTiles(spriteBatch);
 
             foreach (Player player in Players.Where(Player => Player != null))
@@ -251,7 +325,6 @@ namespace Multiplayer1
             foreach (Player player in Players.Where(Player => Player != null))
             {
                 spriteBatch.DrawString(Font, player.PlayerIndex.ToString() + ": " + player.Score.ToString(), new Vector2(32, 32 + (int)player.PlayerIndex * 32), Color.White);
-                spriteBatch.DrawString(Font, MathHelper.ToDegrees(player.AimAngle).ToString(), player.Position, Color.White);
             }
 
             foreach (Grenade grenade in GrenadeList)
@@ -264,7 +337,10 @@ namespace Multiplayer1
                 emitter.Draw(spriteBatch);
             }
 
-
+            foreach (Gib gib in GibList)
+            {
+                gib.Draw(spriteBatch);
+            }
             spriteBatch.End();
 
 
@@ -350,14 +426,14 @@ namespace Multiplayer1
                                         new Vector2(explosion.Position.X, explosion.Position.Y+16),
                                         new Vector2(20, 160), new Vector2(0.3f, 0.8f), new Vector2(500, 1000), 0.85f, true, new Vector2(-2, 2),
                                         new Vector2(-1, 1), new Vector2(0.15f, 0.25f), FireColor,
-                                        Color.Black, -0.2f, 0.1f, 10, 1, false, new Vector2(0, 720), false, 0f,
+                                        Color.Black, -0.2f, 0.1f, 5, 1, false, new Vector2(0, 720), false, 0f,
                                         null, null, null, null, null, null, new Vector2(0.1f, 0.2f), true, true, null, null, null, true);
             EmitterList2.Add(ExplosionEmitter);
 
             Emitter ExplosionEmitter3 = new Emitter(ExplosionParticle2,
                     new Vector2(explosion.Position.X, explosion.Position.Y+16),
                     new Vector2(85, 95), new Vector2(2, 4), new Vector2(400, 640), 0.35f, true, new Vector2(0, 0),
-                    new Vector2(0, 0), new Vector2(0.085f, 0.2f), FireColor, ExplosionColor3, -0.1f, 0.05f, 10, 1, false,
+                    new Vector2(0, 0), new Vector2(0.085f, 0.2f), FireColor, ExplosionColor3, -0.1f, 0.05f, 5, 1, false,
                     new Vector2(0, 720), true, 0f,
                     null, null, null, null, null, null, new Vector2(0.0025f, 0.0025f), true, true, 50);
             EmitterList2.Add(ExplosionEmitter3);
@@ -377,8 +453,33 @@ namespace Multiplayer1
 
                 if (dist < explosion.BlastRadius)
                 {
+                    Gore1.Play();
                     player.CurrentHP = 0;
-                    
+
+                    for (int i = 0; i < 40; i++)
+                    {
+                        Vector2 myDir = new Vector2(player.DestinationRectangle.Center.X, player.DestinationRectangle.Center.Y) - explosion.Position;
+                        myDir.Normalize();
+
+                        float angle = (float)Math.Atan2(myDir.Y, myDir.X) + MathHelper.ToRadians((float)RandomDouble(-130, 130));
+                        Vector2 dir = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+                        dir.Normalize();
+
+                        Gib newGib = new Gib(Splodge, new Vector2(player.DestinationRectangle.Center.X,
+                                                                  player.DestinationRectangle.Center.Y),
+                                             dir, 10, RandomTexture(DecalTexture1, DecalTexture2, DecalTexture3, DecalTexture4), Splodge, Color.Maroon );
+                        newGib.CurrentLevel = Level1;
+                        GibList.Add(newGib);
+                    }
+
+                    if (e.Explosion.Source == player)
+                    {
+                        player.Score--;
+                    }
+                    else
+                    {
+                        (e.Explosion.Source as Player).Score++;
+                    }
                 }
             }
 
@@ -387,6 +488,11 @@ namespace Multiplayer1
         public void PlayRandomSound(params SoundEffect[] soundEffect)
         {
             soundEffect[Random.Next(0, soundEffect.Length)].Play(0.5f, (float)RandomDouble(-0.25, 0.25), 0);
+        }
+
+        public Texture2D RandomTexture(params Texture2D[] textures)
+        {
+            return textures[Random.Next(0, textures.Length)];
         }
 
         public double RandomDouble(double a, double b)

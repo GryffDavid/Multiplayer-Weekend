@@ -13,6 +13,7 @@ namespace Multiplayer1
         public Vector2 Position, Size, TileChar;
         public Texture2D TileTexture;
         public Rectangle BoundingBox, DestinationRectangle, SourceRectangle;
+        public Decal TopDecal, LeftDecal, RightDecal, BottomDecal;
 
         public Tile()
         {
