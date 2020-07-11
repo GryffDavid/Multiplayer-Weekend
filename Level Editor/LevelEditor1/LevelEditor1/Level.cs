@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework.Content;
 
 namespace LevelEditor1
 {
+    public enum LevelType { CTF, DeathMatch, TeamDeathMatch };
+
     public class Level
     {
         public List<List<Tile>> MainTileList = new List<List<Tile>>();

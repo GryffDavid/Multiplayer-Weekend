@@ -16,7 +16,6 @@ namespace LevelEditor1
 
         public Tile()
         {
-
             //Vector2 position, Vector2 size, Vector2 tileChar
             //TileChar = tileChar;
             //Position = position;
@@ -34,7 +33,7 @@ namespace LevelEditor1
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(TileTexture, DestinationRectangle, SourceRectangle, Color.White);
+            spriteBatch.Draw(TileTexture, DestinationRectangle, SourceRectangle, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0f);
         }
     }
 }
