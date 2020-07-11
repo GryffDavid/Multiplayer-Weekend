@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C# Express 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Multiplayer1", "Multiplayer1\Multiplayer1\Multiplayer1.csproj", "{00F482FF-AF14-4273-93C8-9DDF446BD37F}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "Multiplayer1Content", "Multiplayer1\Multiplayer1Content\Multiplayer1Content.contentproj", "{32AB26D8-F0AB-46B4-86F9-FA54BCA02ADA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{00F482FF-AF14-4273-93C8-9DDF446BD37F}.Debug|x86.ActiveCfg = Debug|x86
+		{00F482FF-AF14-4273-93C8-9DDF446BD37F}.Debug|x86.Build.0 = Debug|x86
+		{00F482FF-AF14-4273-93C8-9DDF446BD37F}.Release|x86.ActiveCfg = Release|x86
+		{00F482FF-AF14-4273-93C8-9DDF446BD37F}.Release|x86.Build.0 = Release|x86
+		{32AB26D8-F0AB-46B4-86F9-FA54BCA02ADA}.Debug|x86.ActiveCfg = Debug|x86
+		{32AB26D8-F0AB-46B4-86F9-FA54BCA02ADA}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
